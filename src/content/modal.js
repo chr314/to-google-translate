@@ -24,7 +24,12 @@ class Modal {
             .then(resp => resp.text())
             .then(html => {
 
-                this.shadow.innerHTML = html;
+                this.shadow.innerHTML = l10n.updateString(html);
+
+                let cssURL = chrome.runtime.getURL('src/content/modal.css')
+                this.shadow.querySelector(".modal").insertAdjacentHTML(
+                    "beforebegin",
+                    "<link rel='stylesheet' href='"+ cssURL +"' />");
 
                 if (this.fullscreen) {
                     this.shadow.querySelector(".modal").classList.add("modal-fullscreen");

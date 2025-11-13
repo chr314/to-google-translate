@@ -22,7 +22,7 @@
         }
     },
     "contextMenuTitleTextToSpeech": {
-        "message": "聆聽 ($TTS_LANG$)",
+        "message": "聆聽朗讀 ($TTS_LANG$)",
         "description": "The contextMenus title.",
         "placeholders": {
             "tts_lang": {
@@ -71,6 +71,22 @@
         "message": "設定為 Auto 以自動辨識原文的語言。",
         "description": "Notice message for language settings"
     },
+    "optionsNoteForKeyboardShortcut": {
+        "message": "鍵盤快速鍵",
+        "description": "Notice message for shortcuts"
+    },
+    "optionsNoteForKeyboardShortcutTranslate": {
+        "message": "翻譯選取的文字",
+        "description": "Notice message for shortcut translate"
+    },
+    "optionsNoteForKeyboardShortcutTTS": {
+        "message": "朗讀選取的文字",
+        "description": "Notice message for shortcut TTS"
+    },
+    "optionsNoteForKeyboardShortcutTranslatePage": {
+        "message": "翻譯頁面",
+        "description": "Notice message for shortcut translate page"
+    },
     "optionsSelectedDomainCaption": {
         "message": "網域",
         "description": "Caption domain"
@@ -82,6 +98,18 @@
     "optionsSelectedDomainChina": {
         "message": "中國",
         "description": "Preceding label for china domain"
+    },
+    "optionsOpenModeCaption": {
+        "message": "開啟於",
+        "description": "Caption open mode"
+    },
+    "optionsOpenModeModal": {
+        "message": "Modal",
+        "description": "Preceding label for Modal"
+    },
+    "optionsOpenModeNewTab": {
+        "message": "新分頁",
+        "description": "Preceding label for New Tab"
     },
     "optionsTTCaption": {
         "message": "翻譯文字",
