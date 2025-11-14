@@ -28,15 +28,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-
+const extensionUrl = browser.runtime.getURL('');
 chrome.webRequest.onHeadersReceived.addListener(info => {
-        let headers = info.responseHeaders.filter(header => {
-                let name = header.name.toLowerCase();
-                return name !== 'x-frame-options' && name !== 'frame-options';
-            }
-        );
-        return {responseHeaders: headers};
+        if (info.documentUrl?.startsWith(extensionUrl)) {
+            const headers = info.responseHeaders.filter(header => {
+                    const name = header.name.toLowerCase();
+                    return name !== 'x-frame-options' && name !== 'frame-options';
+                }
+            );
+            return {responseHeaders: headers};
+        }
     },
     {
         urls: [
@@ -98,16 +99,20 @@ browser.commands.onCommand.addListener(function (shortcut) {
                 let selectedText = selection[0] || "";
 
                 if (shortcut === "translate") {
-                    openTranslate(config.translateURL + encodeURIComponent(selectedText), tab);
+                    if (config.openMode === "widget") {
+                        openPopup(selectedText);
+                    } else {
+                        openNewTab(config.translateURL + encodeURIComponent(selectedText), tab);
+                    }
                 } else if (shortcut === "tts") {
-                    openTranslate(config.ttsURL + encodeURIComponent(selectedText) + '&textlen=' + selectedText.length, tab);
+                    openNewTab(config.ttsURL + encodeURIComponent(selectedText) + '&textlen=' + selectedText.length, tab);
                 }
             });
         } else if (shortcut === "translatePage") {
             if (config.openMode === "widget") {
-                chrome.tabs.executeScript(null, {file: "/src/content/inject_widget.js"});
+                injectWidget()
             } else {
-                openTranslate(config.translatePageURL + encodeURIComponent(tab.url), tab, true);
+                openNewTab(config.translatePageURL + encodeURIComponent(tab.url), tab, true);
             }
         }
     });
@@ -121,20 +126,24 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) {
 
     switch (info.menuItemId) {
         case 'translate':
-            openTranslate(config.translateURL + encodeURIComponent(selectedText), tab);
+            if (config.openMode === "widget") {
+                openPopup(selectedText);
+            } else {
+                openNewTab(config.translateURL + encodeURIComponent(selectedText), tab);
+            }
             break;
         case  'tts':
-            openTranslate(config.ttsURL + encodeURIComponent(selectedText) + '&textlen=' + selectedText.length, tab);
+            openNewTab(config.ttsURL + encodeURIComponent(selectedText) + '&textlen=' + selectedText.length, tab);
             break;
         case 'translatePage':
             if (config.openMode === "widget") {
-                chrome.tabs.executeScript(null, {file: "/src/content/inject_widget.js"});
+                injectWidget()
             } else {
-                openTranslate(config.translatePageURL + encodeURIComponent(info.pageUrl), tab, true);
+                openNewTab(config.translatePageURL + encodeURIComponent(info.pageUrl), tab, true);
             }
             break;
         case 'translatePageLink':
-            openTranslate(config.translatePageURL + encodeURIComponent(info.linkUrl), tab, true);
+            openNewTab(config.translatePageURL + encodeURIComponent(info.linkUrl), tab, true);
             break;
     }
 });
@@ -151,28 +160,31 @@ chrome.runtime.onInstalled.addListener(function (info) {
     }
 });
 
-function openTranslate(url, tab, fullscreen = false) {
-    if (Config.config.openMode === "modal" || Config.config.openMode === "widget") {
-        chrome.tabs.executeScript(null, {file: "/src/config.js"}, function () {
-            chrome.tabs.executeScript(null, {file: "/src/content/modal.js"}, function () {
-                chrome.tabs.executeScript(null, {file: "/src/content/content.js"}, function () {
-                    chrome.tabs.executeScript(null, {code: "show_modal('" + url + "', " + !!fullscreen + ");"});
-                });
+function injectWidget() {
+    chrome.tabs.executeScript(null, {file: "/src/config.js"}, function () {
+        chrome.tabs.executeScript(null, {file: "/src/content/inject_widget.js"});
+    });
+}
+
+function openPopup(text = '') {
+    browser.browserAction.openPopup().then(() => {
+        setTimeout(() => {
+            browser.runtime.sendMessage({
+                action: "initPopup",
+                text: text
             });
-        });
-    } else {
-        tabCreateWithOpenerTabId(url, tab);
-    }
+        }, 100);
+    });
 }
 
 // Create a tab with openerTabId if version of Firefox is above 57
 // https://github.com/itsecurityco/to-google-translate/pull/19
-function tabCreateWithOpenerTabId(uri, tab) {
+function openNewTab(uri, tab) {
     browser.runtime.getBrowserInfo().then(info => {
         let newTabConfig = {
             url: uri
         };
-        if (Math.round(parseInt(info.version)) > 56) {
+        if (Math.round(parseInt(info.version)) > 56 && tab) {
             // openerTabId supported
             newTabConfig.openerTabId = tab.id;
         }

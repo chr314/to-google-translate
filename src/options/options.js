@@ -25,6 +25,8 @@ function saveOptions(e) {
 
     let gtDomain = domains[selectedDomain];
 
+    const openMode = document.querySelector('input[name=openMode]:checked')?.value || 'newTab';
+
     Config.setOptions({
         'pageLang': pageLang.value,
         'userLang': userLang.value,
@@ -35,7 +37,7 @@ function saveOptions(e) {
         'enableTTS': enableTTS.checked,
         'enableTP': enableTP.checked,
         'selectedDomain': selectedDomain,
-        'openMode': openMode.value,
+        'openMode': openMode,
         'gtDomain': gtDomain,
         'translateURL': `https://${gtDomain}/?sl=${pageLang.value}&tl=${userLang.value}&text=`,
         'ttsURL': `https://${gtDomain}/translate_tts?ie=UTF-8&total=1&idx=0&client=tw-ob&tl=${ttsLang.value}&q=`,
@@ -104,8 +106,7 @@ function loadOptions() {
         enableTTS.checked = config.enableTTS;
         enableTP.checked = config.enableTP;
         document.querySelector(`input[name=selectedDomain][value="${config.selectedDomain}"]`).checked = true;
-        openMode.value = config.openMode;
-
+        document.querySelector(`input[name=openMode][value="${config.openMode}"]`).checked = true;
     });
 
 }
