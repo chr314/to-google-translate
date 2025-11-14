@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 browser.runtime.onMessage.addListener((message) => {
-    if (message.action === "initPopup") {
+    if (message.action === "popupTranslateText") {
         loadFrame(message.text);
     }
 });

@@ -170,7 +170,7 @@ function openPopup(text = '') {
     browser.browserAction.openPopup().then(() => {
         setTimeout(() => {
             browser.runtime.sendMessage({
-                action: "initPopup",
+                action: "popupTranslateText",
                 text: text
             });
         }, 100);
